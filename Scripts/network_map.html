@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>pydeck</title>
+        <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.0/mapbox-gl.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" />
+    <script src='https://cdn.jsdelivr.net/npm/@deck.gl/jupyter-widget@~8.8.*/dist/index.js'></script>
+    <style>
+    body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#deck-container {
+  width: 100vw;
+  height: 100vh;
+}
+
+#deck-container canvas {
+  z-index: 1;
+  background: none;
+}
+    </style>
+  </head>
+  <body>
+    <div id="deck-container">
+    </div>
+  </body>
+  <script>
+    const container = document.getElementById('deck-container');
+    const jsonInput = {
+  "initialViewState": {
+    "bearing": 0,
+    "latitude": 55.92596752285126,
+    "longitude": 10.625517383794861,
+    "pitch": 0,
+    "zoom": 4
+  },
+  "layers": [
+    {
+      "@@type": "PathLayer",
+      "autoHighlight": true,
+      "data": [
+        {
+          "bus0": "Nordjylland",
+          "bus1": "Midtjylland",
+          "color": "darkseagreen",
+          "name": "Nordjylland_Midtjylland",
+          "path": [
+            [
+              9.672629665913362,
+              57.05220276001101
+            ],
+            [
+              9.396766279856893,
+              56.24899004795872
+            ]
+          ],
+          "rgba": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "tooltip_html": "<b>Nordjylland_Midtjylland</b>\n<table>\n<tr><td style='font-weight:bold'>bus0:</td><td style='text-align:left'>Nordjylland</td></tr>\n<tr><td style='font-weight:bold'>bus1:</td><td style='text-align:left'>Midtjylland</td></tr>\n<tr><td style='font-weight:bold'>color:</td><td style='text-align:left'>darkseagreen</td></tr>\n<tr><td style='font-weight:bold'>width:</td><td style='text-align:left'>2</td></tr>\n</table>",
+          "width": 2,
+          "width_pdk": 2000.0
+        },
+        {
+          "bus0": "Midtjylland",
+          "bus1": "Syddanmark",
+          "color": "darkseagreen",
+          "name": "Midtjylland_Syddanmark",
+          "path": [
+            [
+              9.396766279856893,
+              56.24899004795872
+            ],
+            [
+              9.450183863589,
+              55.35683268776511
+            ]
+          ],
+          "rgba": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "tooltip_html": "<b>Midtjylland_Syddanmark</b>\n<table>\n<tr><td style='font-weight:bold'>bus0:</td><td style='text-align:left'>Midtjylland</td></tr>\n<tr><td style='font-weight:bold'>bus1:</td><td style='text-align:left'>Syddanmark</td></tr>\n<tr><td style='font-weight:bold'>color:</td><td style='text-align:left'>darkseagreen</td></tr>\n<tr><td style='font-weight:bold'>width:</td><td style='text-align:left'>2</td></tr>\n</table>",
+          "width": 2,
+          "width_pdk": 2000.0
+        },
+        {
+          "bus0": "Syddanmark",
+          "bus1": "Sj\u00e6lland",
+          "color": "darkseagreen",
+          "name": "Syddanmark_Sj\u00e6lland",
+          "path": [
+            [
+              9.450183863589,
+              55.35683268776511
+            ],
+            [
+              11.702621346412505,
+              55.279202644174845
+            ]
+          ],
+          "rgba": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "tooltip_html": "<b>Syddanmark_Sj\u00e6lland</b>\n<table>\n<tr><td style='font-weight:bold'>bus0:</td><td style='text-align:left'>Syddanmark</td></tr>\n<tr><td style='font-weight:bold'>bus1:</td><td style='text-align:left'>Sj\u00e6lland</td></tr>\n<tr><td style='font-weight:bold'>color:</td><td style='text-align:left'>darkseagreen</td></tr>\n<tr><td style='font-weight:bold'>width:</td><td style='text-align:left'>2</td></tr>\n</table>",
+          "width": 2,
+          "width_pdk": 2000.0
+        },
+        {
+          "bus0": "Sj\u00e6lland",
+          "bus1": "Hovedstaden",
+          "color": "darkseagreen",
+          "name": "Sj\u00e6lland_Hovedstaden",
+          "path": [
+            [
+              11.702621346412505,
+              55.279202644174845
+            ],
+            [
+              12.90538576320254,
+              55.69260947434658
+            ]
+          ],
+          "rgba": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "tooltip_html": "<b>Sj\u00e6lland_Hovedstaden</b>\n<table>\n<tr><td style='font-weight:bold'>bus0:</td><td style='text-align:left'>Sj\u00e6lland</td></tr>\n<tr><td style='font-weight:bold'>bus1:</td><td style='text-align:left'>Hovedstaden</td></tr>\n<tr><td style='font-weight:bold'>color:</td><td style='text-align:left'>darkseagreen</td></tr>\n<tr><td style='font-weight:bold'>width:</td><td style='text-align:left'>2</td></tr>\n</table>",
+          "width": 2,
+          "width_pdk": 2000.0
+        },
+        {
+          "bus0": "Sj\u00e6lland",
+          "bus1": "Midtjylland",
+          "color": "darkseagreen",
+          "name": "Sj\u00e6lland_Midtjylland",
+          "path": [
+            [
+              11.702621346412505,
+              55.279202644174845
+            ],
+            [
+              9.396766279856893,
+              56.24899004795872
+            ]
+          ],
+          "rgba": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "tooltip_html": "<b>Sj\u00e6lland_Midtjylland</b>\n<table>\n<tr><td style='font-weight:bold'>bus0:</td><td style='text-align:left'>Sj\u00e6lland</td></tr>\n<tr><td style='font-weight:bold'>bus1:</td><td style='text-align:left'>Midtjylland</td></tr>\n<tr><td style='font-weight:bold'>color:</td><td style='text-align:left'>darkseagreen</td></tr>\n<tr><td style='font-weight:bold'>width:</td><td style='text-align:left'>2</td></tr>\n</table>",
+          "width": 2,
+          "width_pdk": 2000.0
+        },
+        {
+          "bus0": "Midtjylland",
+          "bus1": "Hovedstaden",
+          "color": "darkseagreen",
+          "name": "Midtjylland_Hovedstaden",
+          "path": [
+            [
+              9.396766279856893,
+              56.24899004795872
+            ],
+            [
+              12.90538576320254,
+              55.69260947434658
+            ]
+          ],
+          "rgba": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "tooltip_html": "<b>Midtjylland_Hovedstaden</b>\n<table>\n<tr><td style='font-weight:bold'>bus0:</td><td style='text-align:left'>Midtjylland</td></tr>\n<tr><td style='font-weight:bold'>bus1:</td><td style='text-align:left'>Hovedstaden</td></tr>\n<tr><td style='font-weight:bold'>color:</td><td style='text-align:left'>darkseagreen</td></tr>\n<tr><td style='font-weight:bold'>width:</td><td style='text-align:left'>2</td></tr>\n</table>",
+          "width": 2,
+          "width_pdk": 2000.0
+        }
+      ],
+      "getColor": "@@=rgba",
+      "getPath": "@@=path",
+      "getWidth": "@@=width_pdk",
+      "id": "2218b6f0-ae3e-4667-b03f-e157731fca8f",
+      "parameters": {
+        "depthTest": false
+      },
+      "pickable": true
+    },
+    {
+      "@@type": "PolygonLayer",
+      "autoHighlight": true,
+      "data": [
+        {
+          "arrow": [
+            [
+              9.534697972885127,
+              56.65273520200374
+            ],
+            [
+              9.534697972885127,
+              56.65273520200374
+            ],
+            [
+              9.534697972885127,
+              56.65273520200374
+            ]
+          ],
+          "bus0": "Nordjylland",
+          "bus1": "Midtjylland",
+          "color": "darkseagreen",
+          "flow_pdk": 0,
+          "name": "Nordjylland_Midtjylland",
+          "path": [
+            [
+              9.672629665913362,
+              57.05220276001101
+            ],
+            [
+              9.396766279856893,
+              56.24899004795872
+            ]
+          ],
+          "rgba": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "rgba_arrow": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "tooltip_html": "<b>Nordjylland_Midtjylland</b>\n",
+          "width": 2,
+          "width_pdk": 2000.0
+        },
+        {
+          "arrow": [
+            [
+              9.423475071722947,
+              55.80546695136909
+            ],
+            [
+              9.423475071722947,
+              55.80546695136909
+            ],
+            [
+              9.423475071722947,
+              55.80546695136909
+            ]
+          ],
+          "bus0": "Midtjylland",
+          "bus1": "Syddanmark",
+          "color": "darkseagreen",
+          "flow_pdk": 0,
+          "name": "Midtjylland_Syddanmark",
+          "path": [
+            [
+              9.396766279856893,
+              56.24899004795872
+            ],
+            [
+              9.450183863589,
+              55.35683268776511
+            ]
+          ],
+          "rgba": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "rgba_arrow": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "tooltip_html": "<b>Midtjylland_Syddanmark</b>\n",
+          "width": 2,
+          "width_pdk": 2000.0
+        },
+        {
+          "arrow": [
+            [
+              10.576402605000753,
+              55.318036666311784
+            ],
+            [
+              10.576402605000753,
+              55.318036666311784
+            ],
+            [
+              10.576402605000753,
+              55.318036666311784
+            ]
+          ],
+          "bus0": "Syddanmark",
+          "bus1": "Sj\u00e6lland",
+          "color": "darkseagreen",
+          "flow_pdk": 0,
+          "name": "Syddanmark_Sj\u00e6lland",
+          "path": [
+            [
+              9.450183863589,
+              55.35683268776511
+            ],
+            [
+              11.702621346412505,
+              55.279202644174845
+            ]
+          ],
+          "rgba": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "rgba_arrow": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "tooltip_html": "<b>Syddanmark_Sj\u00e6lland</b>\n",
+          "width": 2,
+          "width_pdk": 2000.0
+        },
+        {
+          "arrow": [
+            [
+              12.304003554807524,
+              55.48644829091615
+            ],
+            [
+              12.304003554807524,
+              55.48644829091615
+            ],
+            [
+              12.304003554807524,
+              55.48644829091615
+            ]
+          ],
+          "bus0": "Sj\u00e6lland",
+          "bus1": "Hovedstaden",
+          "color": "darkseagreen",
+          "flow_pdk": 0,
+          "name": "Sj\u00e6lland_Hovedstaden",
+          "path": [
+            [
+              11.702621346412505,
+              55.279202644174845
+            ],
+            [
+              12.90538576320254,
+              55.69260947434658
+            ]
+          ],
+          "rgba": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "rgba_arrow": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "tooltip_html": "<b>Sj\u00e6lland_Hovedstaden</b>\n",
+          "width": 2,
+          "width_pdk": 2000.0
+        },
+        {
+          "arrow": [
+            [
+              10.549693813134697,
+              55.767111656546575
+            ],
+            [
+              10.549693813134697,
+              55.767111656546575
+            ],
+            [
+              10.549693813134697,
+              55.767111656546575
+            ]
+          ],
+          "bus0": "Sj\u00e6lland",
+          "bus1": "Midtjylland",
+          "color": "darkseagreen",
+          "flow_pdk": 0,
+          "name": "Sj\u00e6lland_Midtjylland",
+          "path": [
+            [
+              11.702621346412505,
+              55.279202644174845
+            ],
+            [
+              9.396766279856893,
+              56.24899004795872
+            ]
+          ],
+          "rgba": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "rgba_arrow": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "tooltip_html": "<b>Sj\u00e6lland_Midtjylland</b>\n",
+          "width": 2,
+          "width_pdk": 2000.0
+        },
+        {
+          "arrow": [
+            [
+              11.151076021529716,
+              55.971799937094154
+            ],
+            [
+              11.151076021529716,
+              55.971799937094154
+            ],
+            [
+              11.151076021529716,
+              55.971799937094154
+            ]
+          ],
+          "bus0": "Midtjylland",
+          "bus1": "Hovedstaden",
+          "color": "darkseagreen",
+          "flow_pdk": 0,
+          "name": "Midtjylland_Hovedstaden",
+          "path": [
+            [
+              9.396766279856893,
+              56.24899004795872
+            ],
+            [
+              12.90538576320254,
+              55.69260947434658
+            ]
+          ],
+          "rgba": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "rgba_arrow": [
+            143,
+            188,
+            143,
+            230
+          ],
+          "tooltip_html": "<b>Midtjylland_Hovedstaden</b>\n",
+          "width": 2,
+          "width_pdk": 2000.0
+        }
+      ],
+      "getFillColor": "@@=rgba_arrow",
+      "getPolygon": "@@=arrow",
+      "id": "97267bf3-ba70-49f9-954c-ba22a8ec377c",
+      "parameters": {
+        "depthTest": false
+      },
+      "pickable": true
+    },
+    {
+      "@@type": "ScatterplotLayer",
+      "autoHighlight": true,
+      "data": [
+        {
+          "rgba": [
+            95,
+            158,
+            160,
+            230
+          ],
+          "size": 3.5894748315157323,
+          "size_pdk": 1068.908473668047,
+          "tooltip_html": "<b>Hovedstaden</b>\n<table>\n<tr><td style='font-weight:bold'>x:</td><td style='text-align:left'>12.91</td></tr>\n<tr><td style='font-weight:bold'>y:</td><td style='text-align:left'>55.69</td></tr>\n<tr><td style='font-weight:bold'>size:</td><td style='text-align:left'>3.59</td></tr>\n</table>",
+          "x": 12.90538576320254,
+          "y": 55.69260947434658
+        },
+        {
+          "rgba": [
+            95,
+            158,
+            160,
+            230
+          ],
+          "size": 4.9492474186390965,
+          "size_pdk": 1255.1471557241528,
+          "tooltip_html": "<b>Midtjylland</b>\n<table>\n<tr><td style='font-weight:bold'>x:</td><td style='text-align:left'>9.4</td></tr>\n<tr><td style='font-weight:bold'>y:</td><td style='text-align:left'>56.25</td></tr>\n<tr><td style='font-weight:bold'>size:</td><td style='text-align:left'>4.95</td></tr>\n</table>",
+          "x": 9.396766279856893,
+          "y": 56.24899004795872
+        },
+        {
+          "rgba": [
+            95,
+            158,
+            160,
+            230
+          ],
+          "size": 0.24473692033061809,
+          "size_pdk": 279.1096222909746,
+          "tooltip_html": "<b>Nordjylland</b>\n<table>\n<tr><td style='font-weight:bold'>x:</td><td style='text-align:left'>9.67</td></tr>\n<tr><td style='font-weight:bold'>y:</td><td style='text-align:left'>57.05</td></tr>\n<tr><td style='font-weight:bold'>size:</td><td style='text-align:left'>0.24</td></tr>\n</table>",
+          "x": 9.672629665913362,
+          "y": 57.05220276001101
+        },
+        {
+          "rgba": [
+            95,
+            158,
+            160,
+            230
+          ],
+          "size": 0.26491303307761205,
+          "size_pdk": 290.38670322095925,
+          "tooltip_html": "<b>Sj\u00e6lland</b>\n<table>\n<tr><td style='font-weight:bold'>x:</td><td style='text-align:left'>11.7</td></tr>\n<tr><td style='font-weight:bold'>y:</td><td style='text-align:left'>55.28</td></tr>\n<tr><td style='font-weight:bold'>size:</td><td style='text-align:left'>0.26</td></tr>\n</table>",
+          "x": 11.702621346412505,
+          "y": 55.279202644174845
+        },
+        {
+          "rgba": [
+            95,
+            158,
+            160,
+            230
+          ],
+          "size": 1.0331116800169584,
+          "size_pdk": 573.4541492406719,
+          "tooltip_html": "<b>Syddanmark</b>\n<table>\n<tr><td style='font-weight:bold'>x:</td><td style='text-align:left'>9.45</td></tr>\n<tr><td style='font-weight:bold'>y:</td><td style='text-align:left'>55.36</td></tr>\n<tr><td style='font-weight:bold'>size:</td><td style='text-align:left'>1.03</td></tr>\n</table>",
+          "x": 9.450183863589,
+          "y": 55.35683268776511
+        }
+      ],
+      "getColor": "@@=rgba",
+      "getPosition": "@@=[x, y]",
+      "getRadius": "@@=size_pdk",
+      "id": "ee4fce89-1fb9-4d1e-a8c7-8e8c43623484",
+      "parameters": {
+        "depthTest": false
+      },
+      "pickable": true
+    }
+  ],
+  "mapProvider": "carto",
+  "mapStyle": "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
+  "views": [
+    {
+      "@@type": "MapView",
+      "controller": true
+    }
+  ]
+};
+    const tooltip = {'html': '{tooltip_html}', 'style': {'backgroundColor': 'rgba(0, 0, 0, 0.70)', 'color': 'white', 'fontFamily': 'Arial', 'fontSize': '12px', 'borderCollapse': 'collapse', 'border': '1px solid white', 'padding': '10px', 'maxWidth': '300px', 'overflowWrap': 'break-word', 'overflow': 'hidden'}};
+    const customLibraries = null;
+    const configuration = null;
+
+    const deckInstance = createDeck({
+                  container,
+      jsonInput,
+      tooltip,
+      customLibraries,
+      configuration
+    });
+
+  </script>
+</html>

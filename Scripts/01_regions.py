@@ -14,7 +14,7 @@ REGIONS_GEOJSON = f"{OUT_DIR}/dk_regions.geojson"
 EEZ_DK_GEOJSON = f"{OUT_DIR}/dk_eez.geojson"
 EEZ_BY_REGION_GEOJSON = f"{OUT_DIR}/dk_eez_by_region.geojson"
 
-#load data
+#costs data
 regions = gpd.read_file(GADM_PATH)
 eez = gpd.read_file(EEZ_PATH)
 eez_dk = eez.loc[eez["ISO_TER1"] == "DNK"].copy()

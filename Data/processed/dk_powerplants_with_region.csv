@@ -1,0 +1,16 @@
+NAME_1,name,gppd_idnr,capacity_mw,primary_fuel
+Hovedstaden,Amager power station,WRI1022036,330.0,coal
+Sjælland,Asnaes power station,WRI1022027,787.0,coal
+Hovedstaden,Avedoerevaerket (AvedÃ¸re),WRI1022026,815.0,coal
+Syddanmark,Enstedvaerket,WRI1022031,626.0,coal
+Syddanmark,Esbjerg power station,WRI1022035,407.0,coal
+Syddanmark,Fyns power station,WRI1022032,362.0,coal
+Hovedstaden,H.C. Ã˜rsted,WRI1022043,98.0,gas
+Midtjylland,Herning CHP,WRI1022044,88.0,biomass
+Hovedstaden,Kyndbyvaerket,WRI1022030,664.0,oil
+Nordjylland,Nordjylland power station,WRI1022029,716.0,coal
+Midtjylland,Randers,WRI1022042,52.0,coal
+Syddanmark,Skaerbaekvaerket,WRI1022034,392.0,gas
+Sjælland,Stigsnaesvaerket,WRI1022037,264.0,coal
+Midtjylland,Studstrupvaerket,WRI1022028,730.0,coal
+Hovedstaden,SvanemÃ¸lle,WRI1022045,81.0,gas
