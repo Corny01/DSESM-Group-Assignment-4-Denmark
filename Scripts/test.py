@@ -1,4 +1,5 @@
 import pandas as pd
+#RE_PATH = "../Data/test/dk_res_potential_example_year.csv"
 RE_PATH = "../Data/test/dk_res_potential_example_year.csv"
 re_generators = pd.read_csv(RE_PATH, parse_dates=["timestamp_utc"])
 re_generators = re_generators.set_index(["timestamp_utc", "region"]).sort_index()

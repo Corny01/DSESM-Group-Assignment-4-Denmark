@@ -10,3 +10,4 @@ Modell:
 - Relevanz der Länge der Links und CAPEX?
 - Was bedeutet p_nom, wenn capacity is extendable?
 - Speicher für jeder Region einzeln, also insgesamt 15 Batterie plus 15 Hydro-Speicher?
+- Wie füge ich zwei unterschiedliche timeseries für load und capacity factor zusammen?

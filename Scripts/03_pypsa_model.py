@@ -6,8 +6,6 @@ from pypsa.common import annuity
 import plotly.io as pio
 import plotly.offline as py
 
-pd.options.plotting.backend = "plotly"
-
 ########################  FILE_PATHS   ########################
 
 PP_PATH = "../Data/processed/dk_powerplants_with_region.csv"  # die Datei aus der vorherigen Aufgabe
@@ -15,10 +13,13 @@ COSTS_PATH = "../Data/processed/costs.csv"
 C_PATH ="../Data/processed/region_centroids.csv"
 LOAD_PATH = "../Data/processed/load_regions.csv"
 RE_PATH = "../Data/test/dk_res_potential_example_year.csv" #testing data
-RE_P_PATH ="../Data/test/dk_res_max_potential_example_year.csv" #testing data
+RE_P_PATH ="../Data/test/dk_res_max_potential_by_region.csv" #testing data
 
 ########################  PREPROCESSING_DATA   ########################
 ########################    BUSES_CARRIERS     ########################
+
+loads = pd.read_csv(LOAD_PATH, parse_dates=["time"])
+loads = loads.set_index("time")
 
 conv_generators = pd.read_csv(PP_PATH)
 cap_by_region_fuel = (
@@ -29,20 +30,23 @@ cap_by_region_fuel = (
 conventionals = conv_generators["primary_fuel"].unique().tolist()
 
 ########################  TESTING_DATA   ########################
-re_generators = pd.read_csv(RE_PATH, parse_dates=["timestamp_utc"])
-re_generators = re_generators.set_index(["timestamp_utc", "region"]).sort_index()
+
+re_generators = pd.read_csv(RE_PATH, parse_dates=["timestamp"])
+re_generators = re_generators.set_index(["timestamp", "region"]).sort_index()
 re_cap_by_region = pd.DataFrame(
     {
-        "onshore": re_generators["onshore_capacity_factor"],
-        "offshore": re_generators["offshore_capacity_factor"],
-        "solar": re_generators["solar_capacity_factor"],
+        "onwind": re_generators["cf_onshore"],
+        "offwind": re_generators["cf_offshore"],
+        "solar": re_generators["cf_solar"],
     },
     index=re_generators.index
 )
-renewables = re_cap_by_region.columns
+renewables = list(re_cap_by_region.columns)
 
 re_potential = pd.read_csv(RE_P_PATH)
 re_potential = re_potential.set_index("region")
+re_potential.columns = renewables
+
 ########################  TESTING_DATA   ########################
 
 carriers = sorted(set(conventionals + renewables + ["transmission", "AC", "battery storage", "hydrogen storage underground"]))
@@ -50,9 +54,6 @@ carriers = sorted(set(conventionals + renewables + ["transmission", "AC", "batte
 centroids = pd.read_csv(C_PATH)
 regions = centroids.region
 costs = pd.read_csv(COSTS_PATH, index_col=[0])
-
-loads = pd.read_csv(LOAD_PATH, parse_dates=["time"])
-loads = loads.set_index("time")
 
 ########################    LINKS     ########################
 neighbors = [
@@ -91,6 +92,9 @@ n.add(
         "tomato",
         "dimgrey",
         "black",
+        "rosybrown",
+        "pink",
+        "violet",
         "crimson",
         "crimson",
         "yellow",
@@ -134,7 +138,7 @@ for re in renewables:
             bus=r,
             carrier=re,
             p_nom_max=re_potential.loc[r, re],
-            p_max_pu=re_cap_by_region.loc[(slice(None), r), re],
+            p_max_pu=re_cap_by_region.loc[(slice(None), r), re].droplevel("region"),
             capital_cost=costs.at[re, "capital_cost"],
             marginal_cost=costs.at[re, "marginal_cost"],
             efficiency=costs.at[re, "efficiency"],
@@ -202,3 +206,4 @@ for e in e_to_p_ratio_hydrogen:
             cyclic_state_of_charge=True,
         )
 n.optimize(log_to_console=False, solver_name='gurobi')
+
