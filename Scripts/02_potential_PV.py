@@ -18,7 +18,7 @@ DK = gpd.read_file(DK_PATH)
 DK_shape = DK.to_crs(excluder.crs).geometry
 
 #excluding raster data
-codes_to_exclude = [111, 113, 112, 114, 115, 116, 121, 123, 122, 125, 126, 70, 80, 200 ]
+codes_to_exclude = [111, 113, 112, 114, 115, 116, 121, 123, 122, 125, 126, 70, 80, 200]
 excluder.add_raster(LC_PATH, codes=codes_to_exclude, crs=3035, buffer=0, nodata=48)
 excluder.add_raster(PA_PATH)
 

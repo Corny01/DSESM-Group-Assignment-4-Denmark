@@ -171,6 +171,7 @@ for r0, r1 in neighbors:
         p_nom_max=2000,
         efficiency=1.0,
         capital_cost=capital_cost,
+        p_nom_extendable=True,
     )
 
 for e in e_to_p_ratio_battery:
@@ -206,4 +207,3 @@ for e in e_to_p_ratio_hydrogen:
             cyclic_state_of_charge=True,
         )
 n.optimize(log_to_console=False, solver_name='gurobi')
-
