@@ -206,4 +206,19 @@ for e in e_to_p_ratio_hydrogen:
             p_nom_extendable=True,
             cyclic_state_of_charge=True,
         )
+
+emissions = (
+    n.generators_t.p
+    / n.generators.efficiency
+    * n.generators.carrier.map(n.carriers.co2_emissions)
+)
+
+n.add(
+    "GlobalConstraint",
+    "emission_limit",
+    carrier_attribute="co2_emissions",
+    sense="<=",
+    constant=emissions.sum().sum() * 0,
+)
+
 n.optimize(log_to_console=False, solver_name='gurobi')
