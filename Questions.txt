@@ -12,3 +12,7 @@ Modell:
 - Speicher für jeder Region einzeln, also insgesamt 15 Batterie plus 15 Hydro-Speicher?
 - Wie füge ich zwei unterschiedliche timeseries für load und capacity factor zusammen?
 - Struktur des Codes?
+
+20.01.2026:
+- Wie funktioniert der CO2 reduction Faktor
+-

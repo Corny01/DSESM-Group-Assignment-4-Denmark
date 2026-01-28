@@ -6,16 +6,66 @@ from pypsa.common import annuity
 import plotly.io as pio
 import plotly.offline as py
 
-########################  FILE_PATHS   ########################
+###########################################
+# INPUT
+###########################################
+CO2_reduction_factor = 0 #global transmission reduction goal in %
+
+max_power_links = pd.DataFrame(
+    {
+        "Nordjylland_Midtjylland": 2000, #in MW per link
+        "Midtjylland_Syddanmark": 2000,
+        "Syddanmark_Sjælland": 2000,
+        "Sjælland_Hovedstaden": 2000,
+        "Sjælland_Midtjylland": 2000,
+        "Midtjylland_Hovedstaden": 2000,
+    },
+    index=[0]
+)
+
+cost_projection_year = 2030 #choose from years 2020, 2025, 2030, 2035, 2040, 2045, 2050
+cost_reduction_factor = pd.DataFrame(
+    {
+        "coal": 0, #in %
+        "oil": 0,
+        "gas": 0,
+        "biomass": 0,
+        "solar": 0,
+        "onwind": 0,
+        "offwind": 0,
+    },
+    index=[0]
+)
+
+RE_potential_reduction_factor = pd.DataFrame( #reducec amximum potential for one technologyin all regions
+    {
+        "solar": 0, #in %
+        "onwind": 0,
+        "offwind": 0,
+    },
+    index=[0]
+)
+
+boolean_nuclear_plants = 0 #yes=1; no=0
+nuclear_capex = 2500    #capex of nuclear plants in €/kW
+
+weather_year = 2018 #choose from
+
+###########################################
+# PATHS
+###########################################
 
 PP_PATH = "../Data/processed/dk_powerplants_with_region.csv"  # die Datei aus der vorherigen Aufgabe
-COSTS_PATH = "../Data/processed/costs.csv"
-C_PATH ="../Data/processed/region_centroids.csv"
+COSTS_PATH = f"../Data/processed/costs_{cost_projection_year}.csv"
+C_PATH ="../Data/processed/region_centroids_wsg.csv"
 LOAD_PATH = "../Data/processed/load_regions.csv"
-RE_PATH = "../Data/test/dk_res_potential_example_year.csv" #testing data
+RE_PATH = "../Data/test/dk_res_potential_example_year.csv" #testing data -> insert weather_year
 RE_P_PATH ="../Data/test/dk_res_max_potential_by_region.csv" #testing data
 
-########################  PREPROCESSING_DATA   ########################
+###########################################
+# Loading and preprocessing of data
+###########################################
+
 ########################    BUSES_CARRIERS     ########################
 
 loads = pd.read_csv(LOAD_PATH, parse_dates=["time"])
@@ -58,11 +108,14 @@ costs = pd.read_csv(COSTS_PATH, index_col=[0])
 ########################    LINKS     ########################
 neighbors = [
     ("Nordjylland", "Midtjylland"),
+    ("Nordjylland", "Hovedstaden_West"),
+    ("Nordjylland", "Sjælland"),
     ("Midtjylland", "Syddanmark"),
+    ("Midtjylland", "Sjælland"),
     ("Syddanmark", "Sjælland"),
-    ("Sjælland", "Hovedstaden"),
-    ("Sjælland", "Midtjylland"),
-    ("Midtjylland", "Hovedstaden"),
+    ("Sjælland", "Hovedstaden_West"),
+    ("Sjælland", "Hovedstaden_East"),
+    ("Hovedstaden_West", "Hovedstaden_East"),
 ]
 gcent = gpd.GeoDataFrame(
     centroids,
@@ -138,7 +191,7 @@ for re in renewables:
             bus=r,
             carrier=re,
             p_nom_max=re_potential.loc[r, re],
-            p_max_pu=re_cap_by_region.loc[(slice(None), r), re].droplevel("region"),
+            #p_max_pu=re_cap_by_region.loc[(slice(None), r), re].droplevel("region"),
             capital_cost=costs.at[re, "capital_cost"],
             marginal_cost=costs.at[re, "marginal_cost"],
             efficiency=costs.at[re, "efficiency"],

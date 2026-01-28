@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="gadm_410-levels-ADM_1-DNK" uuid="d8014e93-6303-4b02-895e-3495412bec04">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:C:\Users\corne\Documents\00_Uni\TU-Berlin\Semester 1\Data Science for Energy System Modelling\Group Assignment\DSESM-Group-Assignment-4-Denmark\Data\raw\gadm\gadm_410-levels-ADM_1-DNK.gpkg</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+  </component>
+</project>
