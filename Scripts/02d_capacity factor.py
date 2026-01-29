@@ -4,25 +4,59 @@ import geopandas as gpd
 import pandas as pd
 import matplotlib.pyplot as plt
 from urllib.request import urlretrieve
+import xarray as xr
+import logging
+from atlite.gis import ExclusionContainer
 
+###########################################
+# INPUTolygone zu einer MultiGeometry zusammenfassen (reduziert overlay-komplexität stark
+###########################################
 year = 2013
+buffer = 0.25
+capa_density = 3 #density of power in MW per square kilometer
+
+REGION_COL = "NAME_1"
+turbine_on = "Vestas_V112_3MW"
+turbine_off = "NREL_ReferenceTurbine_5MW_offshore"
+panel = "CdTe"
+orientation = "latitude_optimal"
+
+###########################################
+# PATHS
+###########################################
 
 REGIONS_PATH = "../Data/processed/dk_regions_etr.geojson"
 EEZ_PATH = "../Data/processed/dk_eez_by_region_etr.geojson"
+AVAIL_PV_PATH = "../Data/processed/eligibility/eligible_pv_areas_DK.gpkg"
+AVAIL_ON_PATH = "../Data/processed/eligibility/eligible_wind_on_areas_DK.gpkg"
+AVAIL_OFF_PATH = "../Data/processed/eligibility/eligible_wind_off_areas_DK.gpkg"
+
+###########################################
+# Loading and preprocessing of data
+###########################################
 
 regions = gpd.read_file(REGIONS_PATH).to_crs(4326)
 eez_regions = gpd.read_file(EEZ_PATH).to_crs(4326)
 
-REGION_COL = "region_id"   # <- anpassen
-TURBINE_ON  = "Vestas_V112_3MW"   # <- anpassen (atlite Turbinen-Config Name)
-TURBINE_OFF = "NREL_ReferenceTurbine_5MW_offshore"   # <- anpassen
-PANEL = "CdTe"                     # Standard-Panel config in atlite
-ORIENTATION = "latitude_optimal"  # Standard in atlite
+avail_pv = gpd.read_file(AVAIL_PV_PATH).to_crs(4326)
+avail_on = gpd.read_file(AVAIL_ON_PATH).to_crs(4326)
+avail_off = gpd.read_file(AVAIL_OFF_PATH).to_crs(4326)
 
-minx, miny, maxx, maxy = eez_regions.total_bounds
-buffer = 0.25
+###########################################
+# Cutout erstellen
+###########################################
+
+#set boundaries for cutout
+minx1, miny1, maxx1, maxy1 = regions.total_bounds
+minx2, miny2, maxx2, maxy2 = eez_regions.total_bounds
+
+minx, miny = min(minx1, minx2), min(miny1, miny2)
+maxx, maxy = max(maxx1, maxx2), max(maxy1, maxy2)
+
+#set timeseries
 time = slice(f"{year}-01-01", f"{year+1}-01-01")
 
+#cutout whole area
 cutout = atlite.Cutout(
     path=f"era5-{year}-DK.nc",
     module="era5",
@@ -30,56 +64,81 @@ cutout = atlite.Cutout(
     y=slice(miny - buffer, maxy + buffer),
     time=time,
 )
-
-# Für Wind + PV reicht i.d.R.:
 cutout.prepare(features=["wind", "influx", "temperature"])
 
-# --- 1) Layout: flächengewichtete CFs ---
-# uniform_density_layout => gleiche installierte Leistung pro Fläche (z.B. 1 MW/km²)
-layout = cutout.uniform_density_layout(3.0)
+###########################################
+# Availibility matrices
+###########################################
 
-# --- 2) Capacity factor time series pro Region (per_unit=True) ---
-# shapes=... baut intern eine indicatormatrix/Flächenanteile je Rasterzelle. :contentReference[oaicite:4]{index=4}
-cf_wind_on_ts  = cutout.wind(
-    turbine=TURBINE_ON,
-    shapes=regions,
-    layout=layout,
-    per_unit=True,
+dummy_excluder = ExclusionContainer(crs=3035, res=100)
+
+#PV
+inter_pv = gpd.overlay(
+    regions[[REGION_COL, "geometry"]].reset_index(drop=True),
+    avail_pv[["geometry"]],
+    how="intersection",
+    keep_geom_type=True,
 )
+inter_pv = inter_pv.dissolve(by=REGION_COL)
+shapes_pv = inter_pv.geometry
+A_pv = cutout.availabilitymatrix(shapes_pv, excluder=dummy_excluder)
 
-cf_wind_off_ts = cutout.wind(
-    turbine=TURBINE_OFF,
-    shapes=eez_regions,
-    layout=layout,
-    per_unit=True,
+#Onshore wind
+inter_on = gpd.overlay(
+    regions[[REGION_COL, "geometry"]].reset_index(drop=True),
+    avail_on[["geometry"]],
+    how="intersection",
+    keep_geom_type=True,
 )
+inter_on = inter_on.dissolve(by=REGION_COL)
+shapes_on = inter_on.geometry
+A_on = cutout.availabilitymatrix(shapes_on, excluder=dummy_excluder)
 
-cf_pv_ts = cutout.pv(
-    panel=PANEL,
-    orientation=ORIENTATION,
-    shapes=regions,     # PV typischerweise onshore; falls du PV-offshore willst: eez_shapes
-    layout=layout,
-    per_unit=True,
+#Offshore wind
+inter_off = gpd.overlay(
+    eez_regions[[REGION_COL, "geometry"]].reset_index(drop=True),
+    avail_off[["geometry"]],
+    how="intersection",
+    keep_geom_type=True,
 )
+inter_off = inter_off.dissolve(by=REGION_COL)
+shapes_off = inter_off.geometry
+A_off = cutout.availabilitymatrix(shapes_off, excluder=dummy_excluder)
 
-# --- 3) Jahresmittelwert (Capacity Factor) je Region ---
-# Ergebnis: pandas Series je Technologie mit Index=Regionen
-cf_wind_on = cf_wind_on_ts.mean("time").to_pandas()
-cf_wind_off = cf_wind_off_ts.mean("time").to_pandas()
-cf_pv = cf_pv_ts.mean("time").to_pandas()
+###########################################
+# Calculate maximum capacities per technology and region
+###########################################
 
-# --- 4) In ein gemeinsames DataFrame bringen ---
-# Land- und EEZ-Indizes können unterschiedlich sein -> Outer Join
-df = pd.DataFrame(index=cf_wind_on.index.union(cf_wind_off.index).union(cf_pv.index))
-df["wind_onshore_cf"] = cf_wind_on
-df["wind_offshore_cf"] = cf_wind_off
-df["pv_cf"] = cf_pv
-df["year"] = year
+area = cutout.grid.set_index(["y", "x"]).to_crs(3035).area / 1e6  # km^2
+area = xr.DataArray(area, dims=("spatial",))
 
-# Optional: schöner sortieren
-df = df.reset_index().rename(columns={"index": REGION_COL}).sort_values([REGION_COL])
+capacity_on = A_on.stack(spatial=["y", "x"]) * area * capa_density
+cap_on_total = capacity_on.sum("spatial")  # MW pro Region
 
-# --- 5) CSV speichern ---
-out_csv = f"capacity_factors_{year}.csv"
-df.to_csv(out_csv, index=False)
-print("Wrote:", out_csv)
+capacity_pv = A_pv.stack(spatial=["y", "x"]) * area * capa_density
+cap_pv_total = capacity_pv.sum("spatial")  # MW pro Region
+
+capacity_off = A_off.stack(spatial=["y", "x"]) * area * capa_density
+cap_off_total = capacity_off.sum("spatial")  # MW pro Region
+print(cap_pv_total)
+print(cap_on_total)
+print(cap_off_total)
+"""
+layout_on = A_on * area_km2 * capa_density
+layout_pv = A_pv * area_km2 * capa_density
+layout_off = A_off * area_km2 * capa_density
+
+cap_on_mw = layout_on.sum("spatial")
+cap_pv_mw = layout_pv.sum("spatial")
+cap_off_mw = layout_off.sum("spatial")
+print(cap_on_mw, cap_pv_mw, cap_off_mw)
+
+gen_on = cutout.wind(turbine=turbine_on,  layout=layout_on)
+gen_off = cutout.wind(turbine=turbine_off, layout=layout_off)
+gen_pv = cutout.pv(panel=panel, orientation=orientation, layout=layout_pv)
+
+# CF; Regionen mit cap=0 geben NaN (sauberer als 0/0)
+cf_on = gen_on / cap_on_mw
+cf_off = gen_off / cap_off_mw
+cf_pv = gen_pv / cap_pv_mw
+"""

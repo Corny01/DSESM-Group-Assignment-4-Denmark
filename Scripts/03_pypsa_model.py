@@ -9,7 +9,7 @@ import plotly.offline as py
 ###########################################
 # INPUT
 ###########################################
-CO2_reduction_factor = 0 #global transmission reduction goal in %
+boolean_zero_emission = 0 #yes=1; no=0
 
 max_power_links = pd.DataFrame(
     {
@@ -260,18 +260,13 @@ for e in e_to_p_ratio_hydrogen:
             cyclic_state_of_charge=True,
         )
 
-emissions = (
-    n.generators_t.p
-    / n.generators.efficiency
-    * n.generators.carrier.map(n.carriers.co2_emissions)
-)
-
-n.add(
-    "GlobalConstraint",
-    "emission_limit",
-    carrier_attribute="co2_emissions",
-    sense="<=",
-    constant=emissions.sum().sum() * 0,
-)
+if boolean_zero_emission == 1:
+    n.add(
+        "GlobalConstraint",
+        "emission_limit",
+        carrier_attribute="co2_emissions",
+        sense="<=",
+        constant=0,
+    )
 
 n.optimize(log_to_console=False, solver_name='gurobi')

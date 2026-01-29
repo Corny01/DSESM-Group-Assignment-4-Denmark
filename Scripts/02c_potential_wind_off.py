@@ -1,7 +1,11 @@
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import numpy as np
+from rasterio.features import shapes
+from shapely.geometry import shape
 from atlite.gis import ExclusionContainer, shape_availability
 from rasterio.plot import show
+
 
 ###########################################
 # PATHS
@@ -13,6 +17,7 @@ PA_PATH = "../Data/raw/wdpa/WDPA_Oct2022_Public_shp-DNK.tif"
 EV_PATH = "../Data/raw/gebco/GEBCO_2014_2D-DK.nc"
 
 output_path = "../plots_and_figures/eligible_offshore_wind_areas_DK.png"
+output_shape_path = "../Data/processed/eligibility/eligible_wind_off_areas_DK.gpkg"
 
 ###########################################
 # Load data and define excluder
@@ -27,11 +32,32 @@ excluder.add_geometry(DK_PATH, buffer=10000)
 excluder.add_raster(EV_PATH, codes=lambda x: x<-50, crs=4326)
 
 ###########################################
-# Plot
+# Calculate available area and save es shape
 ###########################################
 
 band, transform = shape_availability(EEZ_shape, excluder)
-fig, ax = plt.subplots(figsize=(4, 8))
+
+geoms = []
+for geom, value in shapes(band.astype(np.uint8), transform=transform):
+    if value == 1:
+        geoms.append(shape(geom))
+
+available_areas = gpd.GeoDataFrame(
+    geometry=geoms,
+    crs=excluder.crs
+)
+
+available_areas.to_file(
+    output_shape_path,
+    layer="eligible_wind_off_areas",
+    driver="GPKG"
+)
+
+###########################################
+# Plot
+###########################################
+
+fig, ax = plt.subplots(figsize=(7, 14))
 EEZ_shape.plot(ax=ax, color="none")
 show(band, transform=transform, cmap="Greens", ax=ax)
 ax.set_title("Eligible offshore Wind Energy Areas in Denmark")

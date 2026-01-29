@@ -1,5 +1,8 @@
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import numpy as np
+from rasterio.features import shapes
+from shapely.geometry import shape
 from atlite.gis import ExclusionContainer, shape_availability
 from rasterio.plot import show
 
@@ -14,6 +17,7 @@ AP_PATH = "../Data/raw/ne_10m_airports.gpkg"
 R_PATH = "../Data/raw/ne_10m_roads.gpkg"
 
 output_path = "../plots_and_figures/eligible_onshore_wind_areas_DK.png"
+output_shape_path = "../Data/processed/eligibility/eligible_wind_on_areas_DK.gpkg"
 
 ###########################################
 # Load data and define excluder
@@ -37,11 +41,32 @@ excluder.add_raster(PA_PATH)
 #excluder for elevation not needed as highest point in Denmark is about 170m
 
 ###########################################
-# Plot
+# Calculate available area and save es shape
 ###########################################
 
 band, transform = shape_availability(DK_shape, excluder)
-fig, ax = plt.subplots(figsize=(4, 8))
+
+geoms = []
+for geom, value in shapes(band.astype(np.uint8), transform=transform):
+    if value == 1:
+        geoms.append(shape(geom))
+
+available_areas = gpd.GeoDataFrame(
+    geometry=geoms,
+    crs=excluder.crs
+)
+
+available_areas.to_file(
+    output_shape_path,
+    layer="eligible_wind_on_areas",
+    driver="GPKG"
+)
+
+###########################################
+# Plot
+###########################################
+
+fig, ax = plt.subplots(figsize=(7, 14))
 DK_shape.plot(ax=ax, color="none")
 show(band, transform=transform, cmap="Greens", ax=ax);
 ax.set_title("Eligible onshore Wind Energy Areas in Denmark")

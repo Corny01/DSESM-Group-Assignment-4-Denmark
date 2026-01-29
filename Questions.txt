@@ -15,4 +15,4 @@ Modell:
 
 20.01.2026:
 - Wie funktioniert der CO2 reduction Faktor
--
+- Bei RES von 0 anfangen oder installierte Kapazität als P_min setzen?

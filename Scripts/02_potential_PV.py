@@ -1,7 +1,8 @@
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
+from rasterio.features import shapes
+from shapely.geometry import shape
 from atlite.gis import ExclusionContainer, shape_availability
 from rasterio.plot import show
 
@@ -14,6 +15,7 @@ LC_PATH = "../Data/raw/copernicus/PROBAV_LC100_global_v3.0.1_2019-nrt_Discrete-C
 PA_PATH = "../Data/raw/wdpa/WDPA_Oct2022_Public_shp-DNK.tif"
 
 output_path = "../plots_and_figures/eligible_pv_areas_DK.png"
+output_shape_path = "../Data/processed/eligibility/eligible_pv_areas_DK.gpkg"
 
 ###########################################
 # Load data and define exluder
@@ -29,18 +31,34 @@ excluder.add_raster(LC_PATH, codes=codes_to_exclude, crs=3035, buffer=0, nodata=
 excluder.add_raster(PA_PATH)
 
 ###########################################
-# Calculate available area
+# Calculate available area and save es shape
 ###########################################
 
 band, transform = shape_availability(DK_shape, excluder)
+
+geoms = []
+for geom, value in shapes(band.astype(np.uint8), transform=transform):
+    if value == 1:
+        geoms.append(shape(geom))
+
+available_areas = gpd.GeoDataFrame(
+    geometry=geoms,
+    crs=excluder.crs
+)
+
+available_areas.to_file(
+    output_shape_path,
+    layer="eligible_pv_areas",
+    driver="GPKG"
+)
 
 ###########################################
 # Plot
 ###########################################
 
-fig, ax = plt.subplots(figsize=(4, 8))
+fig, ax = plt.subplots(figsize=(7, 14))
 DK_shape.plot(ax=ax, color="none")
-show(band, transform=transform, cmap="Greens", ax=ax);
+show(band, transform=transform, cmap="Greens", ax=ax)
 ax.set_title("Eligible PV Energy Areas in Denmark")
 ax.set_xlabel("Easting (m) – EPSG:3035")
 ax.set_ylabel("Northing (m) – EPSG:3035")
