@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:sqlite:C:\Users\corne\Documents\00_Uni\TU-Berlin\Semester 1\Data Science for Energy System Modelling\Group Assignment\DSESM-Group-Assignment-4-Denmark\Data\raw\gadm\gadm_410-levels-ADM_1-DNK.gpkg</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="eligible_wind_on_areas_DK" uuid="0383a682-7441-41cf-9fea-f221deca5352">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:C:\Users\corne\Documents\00_Uni\TU-Berlin\Semester 1\Data Science for Energy System Modelling\Group Assignment\DSESM-Group-Assignment-4-Denmark\Data\processed\eligibility\eligible_wind_on_areas_DK.gpkg</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

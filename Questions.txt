@@ -1,18 +1,5 @@
-Regionen:
-- Zentroiden oder representative point
-- 5 Regionen oder kleine Insel im Osten extra?
-- Aufteilung der EEZ so sinnvoll?
-- Benachbarte Regionen händisch? Link-Berechnung so korrekt?
-
-Modell:
-- Geothermie-Kraftwerk weglassen?
-- Genauere Spezifikation der Kraftwerke?
-- Relevanz der Länge der Links und CAPEX?
-- Was bedeutet p_nom, wenn capacity is extendable?
-- Speicher für jeder Region einzeln, also insgesamt 15 Batterie plus 15 Hydro-Speicher?
-- Wie füge ich zwei unterschiedliche timeseries für load und capacity factor zusammen?
-- Struktur des Codes?
-
 20.01.2026:
 - Wie funktioniert der CO2 reduction Faktor
 - Bei RES von 0 anfangen oder installierte Kapazität als P_min setzen?
+- Ergebnisse und Szenarien auch abgeben? Plots? ERA5 daten?
+- Was zeigen in der Präsentation?

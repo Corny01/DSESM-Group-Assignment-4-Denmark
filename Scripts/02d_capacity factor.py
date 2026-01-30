@@ -1,17 +1,13 @@
 import atlite
-import pypsa
 import geopandas as gpd
 import pandas as pd
-import matplotlib.pyplot as plt
-from urllib.request import urlretrieve
 import xarray as xr
-import logging
 from atlite.gis import ExclusionContainer
 
 ###########################################
-# INPUTolygone zu einer MultiGeometry zusammenfassen (reduziert overlay-komplexität stark
+# INPUT
 ###########################################
-year = 2013
+year = 2018
 buffer = 0.25
 capa_density = 3 #density of power in MW per square kilometer
 
@@ -30,6 +26,9 @@ EEZ_PATH = "../Data/processed/dk_eez_by_region_etr.geojson"
 AVAIL_PV_PATH = "../Data/processed/eligibility/eligible_pv_areas_DK.gpkg"
 AVAIL_ON_PATH = "../Data/processed/eligibility/eligible_wind_on_areas_DK.gpkg"
 AVAIL_OFF_PATH = "../Data/processed/eligibility/eligible_wind_off_areas_DK.gpkg"
+
+MAX_OUT = f"../Data/processed/dk_re_max_potentials_by_region_{year}.csv"
+CF_OUT = f"../Data/processed/dk_re_cf_timeseries_{year}.csv"
 
 ###########################################
 # Loading and preprocessing of data
@@ -54,7 +53,7 @@ minx, miny = min(minx1, minx2), min(miny1, miny2)
 maxx, maxy = max(maxx1, maxx2), max(maxy1, maxy2)
 
 #set timeseries
-time = slice(f"{year}-01-01", f"{year+1}-01-01")
+time = slice(f"{year}-01-01", f"{year}-12-31") #f"{year+1}-01-01
 
 #cutout whole area
 cutout = atlite.Cutout(
@@ -112,33 +111,59 @@ A_off = cutout.availabilitymatrix(shapes_off, excluder=dummy_excluder)
 area = cutout.grid.set_index(["y", "x"]).to_crs(3035).area / 1e6  # km^2
 area = xr.DataArray(area, dims=("spatial",))
 
-capacity_on = A_on.stack(spatial=["y", "x"]) * area * capa_density
-cap_on_total = capacity_on.sum("spatial")  # MW pro Region
-
 capacity_pv = A_pv.stack(spatial=["y", "x"]) * area * capa_density
-cap_pv_total = capacity_pv.sum("spatial")  # MW pro Region
+cap_pv_total = capacity_pv.sum("spatial")  # MW pre region
+
+capacity_on = A_on.stack(spatial=["y", "x"]) * area * capa_density
+cap_on_total = capacity_on.sum("spatial")  # MW # MW pre region
 
 capacity_off = A_off.stack(spatial=["y", "x"]) * area * capa_density
-cap_off_total = capacity_off.sum("spatial")  # MW pro Region
-print(cap_pv_total)
-print(cap_on_total)
-print(cap_off_total)
-"""
-layout_on = A_on * area_km2 * capa_density
-layout_pv = A_pv * area_km2 * capa_density
-layout_off = A_off * area_km2 * capa_density
+cap_off_total = capacity_off.sum("spatial")  # MW # MW pre region
 
-cap_on_mw = layout_on.sum("spatial")
-cap_pv_mw = layout_pv.sum("spatial")
-cap_off_mw = layout_off.sum("spatial")
-print(cap_on_mw, cap_pv_mw, cap_off_mw)
+gen_pv = cutout.pv(matrix=capacity_pv, panel=panel, orientation=orientation,  index=inter_pv.index)
+gen_on = cutout.wind(matrix=capacity_on, turbine=turbine_on,  index=inter_on.index)
+gen_off = cutout.wind(matrix=capacity_off, turbine=turbine_off,  index=inter_off.index)
 
-gen_on = cutout.wind(turbine=turbine_on,  layout=layout_on)
-gen_off = cutout.wind(turbine=turbine_off, layout=layout_off)
-gen_pv = cutout.pv(panel=panel, orientation=orientation, layout=layout_pv)
+cf_pv = gen_pv / cap_pv_total
+cf_on = gen_on / cap_on_total
+cf_off = gen_off / cap_off_total
 
-# CF; Regionen mit cap=0 geben NaN (sauberer als 0/0)
-cf_on = gen_on / cap_on_mw
-cf_off = gen_off / cap_off_mw
-cf_pv = gen_pv / cap_pv_mw
-"""
+###########################################
+# Save calculations in csv files
+###########################################
+
+#max capacities per region
+s_on = cap_on_total.to_pandas()
+s_off = cap_off_total.to_pandas()
+s_pv = cap_pv_total.to_pandas()
+
+df_pot = pd.DataFrame(index=s_pv.index)
+df_pot.index.name = "region"
+df_pot["onshore_potential_MW"] = s_on
+df_pot["offshore_potential_MW"] = s_off
+df_pot["solar_potential_MW"] = s_pv
+df_pot = df_pot.reset_index()
+
+df_pot.to_csv(MAX_OUT, index=False)
+print("Wrote:", f"region_potentials_{year}.csv")
+
+#capacity factor timeseries
+df_cf_on = cf_on.to_pandas()
+df_cf_off = cf_off.to_pandas()
+df_cf_pv = cf_pv.to_pandas()
+
+df_ts_on = df_cf_on.stack(dropna=False).reset_index()
+df_ts_on.columns = ["timestamp", "region", "cf_onshore"]
+
+df_ts_off = df_cf_off.stack(dropna=False).reset_index()
+df_ts_off.columns = ["timestamp", "region", "cf_offshore"]
+
+df_ts_pv = df_cf_pv.stack(dropna=False).reset_index()
+df_ts_pv.columns = ["timestamp", "region", "cf_pv"]
+
+df_ts = df_ts_pv.merge(df_ts_on, on=["timestamp", "region"], how="outer")
+df_ts = df_ts.merge(df_ts_off, on=["timestamp", "region"], how="outer")
+df_ts = df_ts.sort_values(["timestamp", "region"]).reset_index(drop=True)
+
+df_ts.to_csv(CF_OUT, index=False)
+print("Wrote:", f"capacity_factor_timeseries_{year}.csv")

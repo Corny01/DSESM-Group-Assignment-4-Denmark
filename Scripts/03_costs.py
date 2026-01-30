@@ -39,10 +39,11 @@ costs = costs.value.unstack().fillna(defaults)
 # Calculate marginal and capital costs for each technology
 ###########################################
 
-#costs.at["OCGT", "fuel"] = costs.at["gas", "fuel"]
-#costs.at["CCGT", "fuel"] = costs.at["gas", "fuel"]
-#costs.at["OCGT", "CO2 intensity"] = costs.at["gas", "CO2 intensity"]
-#costs.at["CCGT", "CO2 intensity"] = costs.at["gas", "CO2 intensity"]
+costs.at["gas", "FOM"] = (costs.at["OCGT", "FOM"]+costs.at["CCGT", "FOM"])/2
+costs.at["gas", "VOM"] = (costs.at["OCGT", "VOM"]+costs.at["CCGT", "VOM"])/2
+costs.at["gas", "investment"] = (costs.at["OCGT", "investment"]+costs.at["CCGT", "investment"])/2
+costs.at["gas", "efficiency"] = (costs.at["OCGT", "efficiency"]+costs.at["CCGT", "efficiency"])/2
+costs.at["gas", "lifetime"] = (costs.at["OCGT", "lifetime"]+costs.at["CCGT", "lifetime"])/2
 
 annuity(0.07, 20)
 costs["marginal_cost"] = costs["VOM"] + costs["fuel"] / costs["efficiency"]

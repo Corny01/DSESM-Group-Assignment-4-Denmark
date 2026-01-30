@@ -3,11 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # paths
-GADM_PATH = "../Data/raw/gadm/gadm_410-levels-ADM_1-DNK.gpkg"
-EEZ_PATH = "../Data/raw/marineregions/eez_v11.gpkg"
+GADM_PATH = "../../Data/raw/gadm/gadm_410-levels-ADM_1-DNK.gpkg"
+EEZ_PATH = "../../Data/raw/marineregions/eez_v11.gpkg"
 
-OUT_DIR = "../Data/processed"
-PLOT_PATH = "../plots_and_figures/regions_and_eez_by_region.png"
+OUT_DIR = "../../Data/processed"
+PLOT_PATH = "../../plots_and_figures/regions_and_eez_by_region.png"
 
 CENTROIDS_CSV = f"{OUT_DIR}/region_centroids.csv"
 REGIONS_GEOJSON = f"{OUT_DIR}/dk_regions.geojson"
